@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI, Response, Request
 import json
+from DB import database
 
 app = FastAPI()
 
@@ -26,59 +27,8 @@ async def append_file(request: Request):
         f.write(data["date"] + "\n")
     return {"message": "Article appended successfully"}
 
-college_schedule = {
-    "001": {
-        "Monday": [
-            {
-                "subject": "Math",
-                "room": "101",
-                "teachers": ["John Doe", "Jane Smith"]
-            },
-            {
-                "subject": "Physics",
-                "room": "201",
-                "teachers": ["John Doe"]
-            }
-        ],
-        "Tuesday": [
-            {
-                "subject": "Chemistry",
-                "room": "301",
-                "teachers": ["Jane Smith"]
-            }
-        ],
-        # ... and so on for other days
-    },
-    "002": {
-        # schedule for group2
-    },
-    # ... and so on for other groups
-}
-
-
 @app.get("/schedule/{group}/{week}")
 def get_schedule(group: str, week: int):
-    if group not in college_schedule:
-        return {"error": f"Group '{group}' not found."}
-
-    if week not in [0, 1]:
-        return {"error": "Week should be either 0 or 1."}
-
-    schedule = college_schedule[group]
-    week_type = "even" if week == 0 else "odd"
-
-    response = {}
-    for day, subjects in schedule.items():
-        response[day] = []
-        for subject in subjects:
-            response[day].append({
-                "subject": subject["subject"],
-                "room": subject["room"],
-                "teachers": subject["teachers"]
-            })
-
-    return {
-        "group": group,
-        "week": week_type,
-        "schedule": response
-    }
+    week_type = "Числитель" if week == 0 else "Знаменатель"
+    schedule = database.req_schedule(group, week_type)
+    return schedule
