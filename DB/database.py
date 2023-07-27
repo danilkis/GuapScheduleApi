@@ -1,23 +1,21 @@
 import json
 from collections import defaultdict
-
-from Query import Query
-
+from DB import query
 import psycopg2
 
-
+Query = query.Query
 class Req:
 
     @staticmethod
     def req_schedule(group: str, week: str):
         group, week = str(group), str(week)
 
-        conn = psycopg2.connect(
+        conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
             user='guap',
             password='FSPO',
             host='pavlovskhomev3.duckdns.org',
-            port=5432)
+            port=5432)  #TODO: Перенести данные в отдельный файл
 
         with conn.cursor() as cursor:
             cursor.execute(Query.schedule(), (group, week,))
@@ -45,10 +43,4 @@ class Req:
                 })
 
         # Convert JSON data to a formatted string and return
-        return json.dumps(json_data, indent=4, ensure_ascii=False)
-
-
-
-e = Req.req_schedule("122", "Знаменатель")
-
-print(e)
+        return json.dumps(json_data, indent=4, ensure_ascii=False) #Собираем json

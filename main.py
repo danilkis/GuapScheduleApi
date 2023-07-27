@@ -30,5 +30,5 @@ async def append_file(request: Request):
 @app.get("/schedule/{group}/{week}")
 def get_schedule(group: str, week: int):
     week_type = "Числитель" if week == 0 else "Знаменатель"
-    schedule = database.req_schedule(group, week_type)
+    schedule = database.Req.req_schedule(group, week_type)
     return schedule
