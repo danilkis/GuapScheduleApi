@@ -1,7 +1,9 @@
 import json
 from collections import defaultdict
-from DB import query
+
 import psycopg2
+
+from DB import query
 
 Query = query.Query
 class Req:
