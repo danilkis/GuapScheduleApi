@@ -3,7 +3,7 @@ import psycopg2
 
 class Query:
     @staticmethod
-    def schedule() -> str:
+    def schedule(group, week) -> str:
         return (
                 "SELECT groups.group_number, week_type.week_name, (week_days.week_number, week_days.week_name),\n"
                 "       time.pair_number, time.start_time, time.end_time, lesson.lesson_name, teachers.name, classroom.classroom_name\n"
@@ -15,4 +15,4 @@ class Query:
                 "    JOIN time ON time.pair_number = schedule.pair_number_id\n"
                 "    JOIN teachers ON teachers.teacher_number = schedule.teacher_number_id\n"
                 "    JOIN classroom ON classroom.classroom_number = schedule.classroom_number_id\n"
-                "WHERE groups.group_number = '122' AND week_type.week_name = 'Знаменатель';")
+                f"WHERE groups.group_number = '{group}' AND week_type.week_name = '{week}';")

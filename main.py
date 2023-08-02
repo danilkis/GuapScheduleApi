@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Response, Request
 import json
 from DB import database
-
+from Cloud import notifications
 app = FastAPI()
 
 @app.get("/news")
@@ -32,3 +32,8 @@ def get_schedule(group: str, week: int):
     week_type = "Числитель" if week == 0 else "Знаменатель"
     schedule = database.Req.req_schedule(group, week_type)
     return schedule
+
+@app.get("/notification/schedule/updates")
+def notification_schedule_update():
+    notifications.notify_schedule()
+    return {"message": "SENT"}

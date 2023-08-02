@@ -20,7 +20,7 @@ class Req:
             port=5432)  #TODO: Перенести данные в отдельный файл
 
         with conn.cursor() as cursor:
-            cursor.execute(Query.schedule(), (group, week,))
+            cursor.execute(Query.schedule(group, week))
 
             fetchall = cursor.fetchall()
             print()
