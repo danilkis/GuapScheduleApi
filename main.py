@@ -6,20 +6,12 @@ from Cloud import notifications
 app = FastAPI()
 
 @app.get("/news")
-async def read_file():
-    with open("example.txt", "r") as f:
-        lines = f.readlines()
-        articles = []
-        for i in range(0, len(lines), 3):
-            title = lines[i].strip()
-            text = lines[i+1].strip()
-            date = lines[i+2].strip()
-            article_dict = {"title": title, "text": text, "date": date}
-            articles.append(article_dict)
-        return Response(content=json.dumps(articles), media_type="application/json")
+async def get_news():
+    news = database.Req.req_news()
+    return news
 
-@app.post("/news")
-async def append_file(request: Request):
+@app.post("/news/add")
+async def post_news(request: Request):
     data = await request.json()
     with open("example.txt", "a") as f:
         f.write(data["title"] + "\n")
