@@ -19,3 +19,17 @@ def notify_schedule():
     # Send the message
     response = messaging.send(message)
     print("Successfully sent message:", response)
+
+def notify_news():
+    # Define the message payload
+    message = messaging.Message(
+        notification=messaging.Notification(
+            title="Новости",
+            body="Новая новость от ГУАП!"
+        ),
+        topic="news"
+    )
+
+    # Send the message
+    response = messaging.send(message)
+    print("Successfully sent message:", response)

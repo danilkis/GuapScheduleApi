@@ -33,7 +33,12 @@ def get_schedule(group: str, week: int):
     schedule = database.Req.req_schedule(group, week_type)
     return schedule
 
-@app.get("/notification/schedule/updates")
+@app.get("/schedule/notify")
 def notification_schedule_update():
     notifications.notify_schedule()
+    return {"message": "SENT"}
+
+@app.get("/news/notify")
+def notification_news_update():
+    notifications.notify_news()
     return {"message": "SENT"}
