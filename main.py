@@ -1,8 +1,8 @@
-
-from fastapi import FastAPI, Response, Request
-import json
+from fastapi import FastAPI, Response, Request, Header
 from DB import database
 from Cloud import notifications
+from news import Article
+
 app = FastAPI()
 
 @app.get("/news")
@@ -10,14 +10,13 @@ async def get_news():
     news = database.Req.req_news()
     return news
 
+
+
+
 @app.post("/news/add")
-async def post_news(request: Request):
-    data = await request.json()
-    with open("example.txt", "a") as f:
-        f.write(data["title"] + "\n")
-        f.write(data["text"] + "\n")
-        f.write(data["date"] + "\n")
-    return {"message": "Article appended successfully"}
+async def create_news_article(article: Article):
+    database.Post.post_news(article)
+    return 200
 
 @app.get("/schedule/{group}/{week}")
 def get_schedule(group: str, week: int):
@@ -28,9 +27,9 @@ def get_schedule(group: str, week: int):
 @app.get("/schedule/notify")
 def notification_schedule_update():
     notifications.notify_schedule()
-    return {"message": "SENT"}
+    return 200
 
 @app.get("/news/notify")
 def notification_news_update():
     notifications.notify_news()
-    return {"message": "SENT"}
+    return 200

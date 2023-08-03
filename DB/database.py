@@ -1,8 +1,6 @@
 import json
 from collections import defaultdict
-
 import psycopg2
-
 from DB import query
 
 Query = query.Query
@@ -44,7 +42,7 @@ class Req:
 
         conn.close()
         # Convert JSON data to a formatted string and return
-        return json.dumps(json_data, indent=4, ensure_ascii=False) #Собираем json
+        return json_data
 
     @staticmethod
     def req_news():
@@ -54,23 +52,40 @@ class Req:
             password='FSPO',
             host='pavlovskhomev3.duckdns.org',
             port=5432)  # TODO: Перенести данные в отдельный файл
-        data = {}
+        data = []
         with conn.cursor() as cursor:
             cursor.execute(Query.news_get())
             fetchall = cursor.fetchall()
-            print(fetchall)
             for row in fetchall:
-                article_id = int(row[0])
+                dict_row = {}
+                print(int(row[0]))
+                postId = int(row[0])
                 title = str(row[1])
-                #text = str(row[2])
-                #views = row[3]
-                #image = row[4] if row else None
-                data[0]['title'] = title
-                #data[article_id]['description'] = text
-                #data[article_id]['image'] = image
-                #data[article_id]['views'] = views
-
+                text = str(row[2])
+                views = row[3]
+                image_url = row[4] if row else None
+                dict_row['postId'] = postId
+                dict_row['title'] = title
+                dict_row['description'] = text
+                dict_row['image_url'] = image_url
+                dict_row['views'] = views
+                data.append(dict_row)
         conn.close()
-        json_data = json.dumps(data)
+        json_data = str(data)
         # Convert JSON data to a formatted string and return
-        return json.dumps(json_data, indent=4, ensure_ascii=False)  # Собираем json
+        return json_data
+
+class Post:
+    @staticmethod
+    def post_news(Article):
+        conn = psycopg2.connect(  ##Подключение к БД
+            dbname='guap_app',
+            user='guap',
+            password='FSPO',
+            host='pavlovskhomev3.duckdns.org',
+            port=5432)
+        with conn.cursor() as cursor:
+            cursor.execute("INSERT INTO news (title, text, image) VALUES (%s, %s, %s)",
+                (Article.title, Article.text, Article.image)) #TODO: Перенос в query
+        conn.commit()
+        conn.close()
