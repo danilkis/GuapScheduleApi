@@ -75,6 +75,26 @@ class Req:
         # Convert JSON data to a formatted string and return
         return json_data
 
+    @staticmethod
+    def req_groups():
+        conn = psycopg2.connect(  ##Подключение к БД
+            dbname='guap_app',
+            user='guap',
+            password='FSPO',
+            host='pavlovskhomev3.duckdns.org',
+            port=5432)  # TODO: Перенести данные в отдельный файл
+        data = []
+        with conn.cursor() as cursor:
+            cursor.execute(Query.groups_get())
+            fetchall = cursor.fetchall()
+            for row in fetchall:
+                data.append(row[0])
+        conn.close()
+        json_data = str(data)
+        # Convert JSON data to a formatted string and return
+        return json_data
+
+
 class Post:
     @staticmethod
     def post_news(Article):

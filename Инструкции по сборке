@@ -8,3 +8,8 @@ sudo docker buildx build \                                                      
 
 sudo docker pull smarthomedaniils/scheduleapi
 sudo docker run -d -p 1010:1010 --name schedule --restart=always smarthomedaniils/scheduleapi
+
+Создание сборщика
+docker buildx create --name mybuilder
+sudo docker buildx use mybuilder
+sudo docker buildx inspect --bootstrap

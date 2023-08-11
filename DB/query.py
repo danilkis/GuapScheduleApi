@@ -21,3 +21,9 @@ class Query:
         def news_get() -> str:
             return (
                 "SELECT * FROM news")
+
+        @staticmethod
+        def groups_get() -> str:
+                return (
+                        "SELECT group_number FROM groups")
+

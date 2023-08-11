@@ -10,8 +10,10 @@ async def get_news():
     news = database.Req.req_news()
     return news
 
-
-
+@app.get("/group")
+async def get_groups():
+    groups = database.Req.req_groups()
+    return groups
 
 @app.post("/news/add")
 async def create_news_article(article: Article):
