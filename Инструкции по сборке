@@ -13,3 +13,7 @@ sudo docker run -d -p 1010:1010 --name schedule --restart=always smarthomedaniil
 docker buildx create --name mybuilder
 sudo docker buildx use mybuilder
 sudo docker buildx inspect --bootstrap
+
+Тест для News
+
+curl -X POST -H "Content-Type: application/json" -d '{"title": "New Study Finds Benefits of Daily Exercise", "text": "A recent study published in the Journal of Health and Fitness found that daily exercise can have numerous benefits for both physical and mental health. The study followed a group of participants who engaged in 30 minutes of moderate exercise every day for six months. Results showed improvements in cardiovascular health, weight management, and overall mood. Experts recommend incorporating daily exercise into your routine to reap these benefits.", "image": "https://example.com/images/exercise.jpg"}' http://localhost:8000/news

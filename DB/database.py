@@ -1,6 +1,7 @@
 import json
 from collections import defaultdict
 import psycopg2
+import datetime
 from DB import query
 
 Query = query.Query
@@ -64,11 +65,15 @@ class Req:
                 text = str(row[2])
                 views = row[3]
                 image_url = row[4] if row else None
+                posted_at = row[5]
+                posted_for = row[6]
                 dict_row['postId'] = postId
                 dict_row['title'] = title
                 dict_row['description'] = text
                 dict_row['image_url'] = image_url
                 dict_row['views'] = views
+                dict_row['posted_at'] = posted_at
+                dict_row['posted_for'] = posted_for
                 data.append(dict_row)
         conn.close()
         json_data = str(data)
@@ -98,14 +103,16 @@ class Req:
 class Post:
     @staticmethod
     def post_news(Article):
+        dt = datetime.datetime.now()
         conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
             user='guap',
             password='FSPO',
             host='pavlovskhomev3.duckdns.org',
             port=5432)
+        posted_for = datetime.datetime.strptime(Article.posted_for, '%Y-%m-%d %H:%M:%S')
         with conn.cursor() as cursor:
-            cursor.execute("INSERT INTO news (title, text, image) VALUES (%s, %s, %s)",
-                (Article.title, Article.text, Article.image)) #TODO: Перенос в query
+            cursor.execute("INSERT INTO news (title, text, image, posted_at, posted_for) VALUES (%s, %s, %s, %s, %s)",
+                (Article.title, Article.text, Article.image, dt, posted_for)) #TODO: Перенос в query
         conn.commit()
         conn.close()
