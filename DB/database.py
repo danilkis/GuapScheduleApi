@@ -31,16 +31,49 @@ class Req:
             for row in fetchall:
                 day = row[2].replace('(', '').replace(')', '').split(',')
                 subject = row[6]
+                pair_number = row[3]
                 room = row[8]
                 teacher = row[7]
 
                 json_data['schedule'][day[1]].append({
                     "indexDay": day[0],
+                    "lessonNum": pair_number,
                     "lesson": subject,
                     "classroom": room,
                     "teachers": teacher
                 })
 
+        conn.close()
+        # Convert JSON data to a formatted string and return
+        return json_data
+
+    @staticmethod
+    def req_changes():
+        conn = psycopg2.connect(  ##Подключение к БД
+            dbname='guap_app',
+            user='guap',
+            password='FSPO',
+            host='pavlovskhomev3.duckdns.org',
+            port=5432)  #TODO: Перенести данные в отдельный файл
+
+        json_data = []
+
+        with conn.cursor() as cursor:
+            cursor.execute(Query.changes_get())
+
+            fetchall = cursor.fetchall()
+
+            for row in fetchall:
+                dict_row = {}
+                dict_row['group'] = row[0]
+                dict_row['week'] = row[1]
+                day = row[2].replace('(', '').replace(')', '').split(',')
+                dict_row['lessonNum'] = row[3]
+                dict_row['lesson'] = row[6]
+                dict_row['classroom'] = row[8]
+                dict_row['teacher'] = row[7]
+                dict_row['indexDay'] = day[0]
+                json_data.append(dict_row)
         conn.close()
         # Convert JSON data to a formatted string and return
         return json_data
@@ -60,20 +93,13 @@ class Req:
             for row in fetchall:
                 dict_row = {}
                 print(int(row[0]))
-                postId = int(row[0])
-                title = str(row[1])
-                text = str(row[2])
-                views = row[3]
-                image_url = row[4] if row else None
-                posted_at = row[5]
-                posted_for = row[6]
-                dict_row['postId'] = postId
-                dict_row['title'] = title
-                dict_row['description'] = text
-                dict_row['image_url'] = image_url
-                dict_row['views'] = views
-                dict_row['posted_at'] = posted_at
-                dict_row['posted_for'] = posted_for
+                dict_row['postId'] = int(row[0])
+                dict_row['title'] = str(row[1])
+                dict_row['description'] = str(row[2])
+                dict_row['views'] = row[3]
+                dict_row['image_url'] = row[4] if row else None
+                dict_row['posted_at'] = row[5]
+                dict_row['posted_for'] = row[6]
                 data.append(dict_row)
         conn.close()
         json_data = str(data)
@@ -116,3 +142,41 @@ class Post:
                 (Article.title, Article.text, Article.image, dt, posted_for)) #TODO: Перенос в query
         conn.commit()
         conn.close()
+
+
+    @staticmethod
+    def post_schedule_change(data):
+        # Parse the incoming JSON data
+        group = data.get("group")
+        week = data.get("week")
+        day = data.get("day")
+        index_day = data.get("indexDay")
+        lesson = data.get("lesson")
+        classroom = data.get("classroom")
+        teachers = data.get("teachers")
+
+        conn = psycopg2.connect(
+            dbname='guap_app',
+            user='guap',
+            password='FSPO',
+            host='pavlovskhomev3.duckdns.org',
+            port=5432)
+
+        with conn.cursor() as cursor:
+            # Here you would execute appropriate SQL queries to update the schedule
+            # based on the provided data. You would need to determine the proper schema
+            # and fields in your database to perform the update.
+
+            # For example:
+            update_query = (
+                "UPDATE schedule "
+                "SET lesson_name = %s, classroom_name = %s, teacher_name = %s "
+                "WHERE group_id = %s AND week_name = %s AND week_day = %s AND index_day = %s"
+            )
+            cursor.execute(update_query, (lesson, classroom, teachers, group, week, day, index_day))
+
+            conn.commit()
+
+        conn.close()
+
+        return {"message": "Schedule change successful"}

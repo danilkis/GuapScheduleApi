@@ -27,3 +27,15 @@ class Query:
                 return (
                         "SELECT group_number FROM groups")
 
+        @staticmethod
+        def changes_get() -> str:
+            return (
+                "SELECT g.group_number, wt.week_name, wd.week_name AS week_days_info, t.pair_number, t.start_time, t.end_time, l.lesson_name, tr.name AS teacher_name, cl.classroom_name\n"
+                "FROM changes c\n"
+                "JOIN groups g ON g.id = c.group_id\n"
+                "JOIN week_type wt ON wt.id = c.week_type_id\n"
+                "JOIN week_days wd ON wd.week_number = c.week_days_id\n"
+                "JOIN lesson l ON l.lesson_number = c.lesson_number_id\n"
+                "JOIN time t ON t.pair_number = c.pair_number_id\n"
+                "JOIN teachers tr ON tr.teacher_number = c.teacher_number_id\n"
+                "JOIN classroom cl ON cl.classroom_number = c.classroom_number_id;")

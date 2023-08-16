@@ -26,6 +26,15 @@ def get_schedule(group: str, week: int):
     schedule = database.Req.req_schedule(group, week_type)
     return schedule
 
+@app.get("/schedule/changes")
+def get_schedule():
+    changes = database.Req.req_changes()
+    return changes
+
+@app.get("/schedule/add/changes")
+def get_schedule():
+        #TODO: Дописать
+
 @app.get("/schedule/notify")
 def notification_schedule_update():
     notifications.notify_schedule()
