@@ -3,7 +3,8 @@ from collections import defaultdict
 import psycopg2
 import datetime
 from DB import query
-
+from Models.news import Article
+from Models.changes import Changes
 Query = query.Query
 class Req:
 
@@ -13,9 +14,9 @@ class Req:
 
         conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
-            user='guap',
-            password='FSPO',
-            host='pavlovskhomev3.duckdns.org',
+            user='daniel',
+            password='XMBu8:EPxRSj\F',
+            host='database.leftbrained.space',
             port=5432)  #TODO: Перенести данные в отдельный файл
 
         with conn.cursor() as cursor:
@@ -51,9 +52,9 @@ class Req:
     def req_changes():
         conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
-            user='guap',
-            password='FSPO',
-            host='pavlovskhomev3.duckdns.org',
+            user='daniel',
+            password='XMBu8:EPxRSj\F',
+            host='database.leftbrained.space',
             port=5432)  #TODO: Перенести данные в отдельный файл
 
         json_data = []
@@ -82,9 +83,9 @@ class Req:
     def req_news():
         conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
-            user='guap',
-            password='FSPO',
-            host='pavlovskhomev3.duckdns.org',
+            user='daniel',
+            password='XMBu8:EPxRSj\F',
+            host='database.leftbrained.space',
             port=5432)  # TODO: Перенести данные в отдельный файл
         data = []
         with conn.cursor() as cursor:
@@ -110,9 +111,9 @@ class Req:
     def req_groups():
         conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
-            user='guap',
-            password='FSPO',
-            host='pavlovskhomev3.duckdns.org',
+            user='daniel',
+            password='XMBu8:EPxRSj\F',
+            host='database.leftbrained.space',
             port=5432)  # TODO: Перенести данные в отдельный файл
         data = []
         with conn.cursor() as cursor:
@@ -132,9 +133,9 @@ class Post:
         dt = datetime.datetime.now()
         conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
-            user='guap',
-            password='FSPO',
-            host='pavlovskhomev3.duckdns.org',
+            user='daniel',
+            password='XMBu8:EPxRSj\F',
+            host='database.leftbrained.space',
             port=5432)
         posted_for = datetime.datetime.strptime(Article.posted_for, '%Y-%m-%d %H:%M:%S')
         with conn.cursor() as cursor:
@@ -145,35 +146,41 @@ class Post:
 
 
     @staticmethod
-    def post_schedule_change(data):
-        # Parse the incoming JSON data
-        group = data.get("group")
-        week = data.get("week")
-        day = data.get("day")
-        index_day = data.get("indexDay")
-        lesson = data.get("lesson")
-        classroom = data.get("classroom")
-        teachers = data.get("teachers")
-
+    def post_schedule_change(Changes):
         conn = psycopg2.connect(
             dbname='guap_app',
-            user='guap',
-            password='FSPO',
-            host='pavlovskhomev3.duckdns.org',
+            user='daniel',
+            password='XMBu8:EPxRSj\F',
+            host='database.leftbrained.space',
             port=5432)
 
         with conn.cursor() as cursor:
-            # Here you would execute appropriate SQL queries to update the schedule
-            # based on the provided data. You would need to determine the proper schema
-            # and fields in your database to perform the update.
-
-            # For example:
-            update_query = (
-                "UPDATE schedule "
-                "SET lesson_name = %s, classroom_name = %s, teacher_name = %s "
-                "WHERE group_id = %s AND week_name = %s AND week_day = %s AND index_day = %s"
-            )
-            cursor.execute(update_query, (lesson, classroom, teachers, group, week, day, index_day))
+            cursor.execute("INSERT INTO changes (created_at, for_date, group_id, week_type_id, week_days_id, pair_number_id, lesson_number_id, teacher_number_id, classroom_number_id)\n"
+                           "SELECT\n"
+                           "NOW(),\n"
+                           "%s,\n"
+                            "g.id AS group_id,\n"
+                            "wt.id AS week_type_id,\n"
+                            "wd.week_number AS week_days_id,\n"
+                            "t.pair_number AS pair_number_id,\n"
+                            "l.lesson_number AS lesson_number_id,\n"
+                            "tr1.teacher_number AS teacher_number_id,\n"
+                            "cl1.classroom_number AS classroom_number_id\n"
+                            "FROM groups g\n"
+                            "JOIN schedule s ON g.id = s.group_id\n"
+                            "JOIN week_type wt ON wt.id = s.week_type_id\n"
+                            "JOIN week_days wd ON wd.week_number = s.week_days_id\n"
+                            "JOIN lesson l ON l.lesson_name = %s\n"
+                            "JOIN time t ON t.pair_number = s.pair_number_id\n"
+                            "JOIN teachers tr ON tr.teacher_number = s.teacher_number_id\n"
+                            "JOIN teachers tr1 ON tr1.name = %s\n"
+                            "JOIN classroom cl ON cl.classroom_number = s.classroom_number_id\n"
+                            "JOIN classroom cl1 ON cl1.classroom_name = %s"
+                            "WHERE g.group_number = %s\n"
+                            "AND wt.week_name = %s\n"
+                            "AND wd.week_name = %s"
+                            "AND s.pair_number_id = %s;",
+                (Changes.for_date, Changes.lesson, Changes.teacher, Changes.classroom, Changes.group, Changes.week, Changes.weekday, Changes.lessonNum))
 
             conn.commit()
 

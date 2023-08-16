@@ -1,7 +1,10 @@
+from typing import List
+
 from fastapi import FastAPI, Response, Request, Header
 from DB import database
 from Cloud import notifications
-from news import Article
+from Models.changes import Changes
+from Models.news import Article
 
 app = FastAPI()
 
@@ -16,7 +19,7 @@ async def get_groups():
     return groups
 
 @app.post("/news/add")
-async def create_news_article(article: Article):
+async def post_news(article: Article):
     database.Post.post_news(article)
     return 200
 
@@ -27,13 +30,15 @@ def get_schedule(group: str, week: int):
     return schedule
 
 @app.get("/schedule/changes")
-def get_schedule():
+def get_schedule_changes():
     changes = database.Req.req_changes()
     return changes
 
-@app.get("/schedule/add/changes")
-def get_schedule():
-        #TODO: Дописать
+@app.post("/schedule/add/changes")
+def parse_lessons(lessons: List[Changes]):
+    for changes in lessons:
+        database.Post.post_schedule_change(changes)
+    return 200
 
 @app.get("/schedule/notify")
 def notification_schedule_update():
