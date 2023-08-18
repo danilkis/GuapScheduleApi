@@ -1,5 +1,5 @@
 ## base image
-FROM arm64v8/python:3.11-slim-buster
+FROM python:3.11-slim-buster
 
 ## install dependencies
 RUN apt-get update && \
