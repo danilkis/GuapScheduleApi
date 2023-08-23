@@ -1,5 +1,6 @@
 from typing import List
 
+import uvicorn
 from fastapi import FastAPI, Response, Request, Header
 from DB import database
 from Cloud import notifications
@@ -24,7 +25,7 @@ async def post_news(article: Article):
     return 200
 
 @app.get("/schedule/{group}/{week}")
-def get_schedule(group: str, week: int):
+async def get_schedule(group: str, week: int):
     week_type = "Числитель" if week == 0 else "Знаменатель"
     schedule = database.Req.req_schedule(group, week_type)
     return schedule
@@ -41,11 +42,11 @@ def parse_lessons(lessons: List[Changes]):
     return 200
 
 @app.get("/schedule/notify")
-def notification_schedule_update():
+async def notification_schedule_update():
     notifications.notify_schedule()
     return 200
 
 @app.get("/news/notify")
-def notification_news_update():
+async def notification_news_update():
     notifications.notify_news()
     return 200
