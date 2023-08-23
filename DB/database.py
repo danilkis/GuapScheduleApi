@@ -81,6 +81,20 @@ class Req:
 
     @staticmethod
     def req_news():
+        MONTH_NAMES = {
+            "January": "января",
+            "February": "февраля",
+            "March": "марта",
+            "April": "апреля",
+            "May": "мая",
+            "June": "июня",
+            "July": "июля",
+            "August": "августа",
+            "September": "сентября",
+            "October": "октября",
+            "November": "ноября",
+            "December": "декабря",
+        }
         conn = psycopg2.connect(  ##Подключение к БД
             dbname='guap_app',
             user='daniel',
@@ -99,11 +113,14 @@ class Req:
                 dict_row['description'] = str(row[2])
                 dict_row['views'] = row[3]
                 dict_row['image_url'] = row[4] if row else None
-                dict_row['posted_at'] = row[5]
-                dict_row['posted_for'] = row[6]
+                posted_for_datetime = row[6]
+                month = posted_for_datetime.strftime('%B')
+                formatted_month = MONTH_NAMES.get(month, month)
+                formatted_posted_for = posted_for_datetime.strftime(f'%-d {formatted_month} %Y года, %H:%M')
+                dict_row['posted_for'] = formatted_posted_for
                 data.append(dict_row)
         conn.close()
-        json_data = str(data)
+        json_data = data
         # Convert JSON data to a formatted string and return
         return json_data
 
